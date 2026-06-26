@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIRJ Creative — Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600&display=swap');
+  :root {
+    --coral: #F48575; --blue: #2846ab; --purple: #8354c5;
+    --muted: #8487ae; --dark: #1a1a2e; --bg: #0f0f1a;
+    --card: #1a1a2e; --card-hover: #20203a;
+    --border: rgba(255,255,255,0.07); --border-hover: rgba(255,255,255,0.14);
+    --text: #f0eef8; --text-sub: #8487ae; --text-dim: rgba(132,135,174,0.6);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  .protected { display: none; }
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar { width: 220px; background: var(--card); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; }
+  .sidebar-top { padding: 24px 20px 20px; border-bottom: 1px solid var(--border); }
+  .sidebar-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .logo-m { width: 32px; height: 32px; background: var(--coral); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 600; color: white; flex-shrink: 0; }
+  .sidebar-brand { font-family: 'Playfair Display', serif; font-size: 14px; color: var(--text); font-weight: 500; }
+  .sidebar-env { font-size: 10px; color: var(--purple); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 6px; padding: 3px 8px; background: rgba(131,84,197,0.15); border-radius: 4px; display: inline-block; }
+  .sidebar-nav { padding: 16px 12px; flex: 1; }
+  .nav-label { font-size: 10px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; padding: 0 8px; margin-bottom: 6px; margin-top: 16px; display: block; }
+  .nav-label:first-child { margin-top: 0; }
+  .nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; font-size: 13px; color: var(--text-sub); cursor: pointer; transition: background 0.15s, color 0.15s; text-decoration: none; margin-bottom: 2px; }
+  .nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+  .nav-item.active { background: rgba(131,84,197,0.15); color: var(--purple); }
+  .nav-item.dim { opacity: 0.4; cursor: default; pointer-events: none; }
+  .nav-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .soon-tag { font-size: 9px; background: rgba(255,255,255,0.06); color: var(--text-dim); padding: 1px 6px; border-radius: 3px; margin-left: auto; }
+  .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); }
+  .logout-btn { font-size: 12px; color: var(--text-dim); cursor: pointer; background: none; border: none; font-family: inherit; padding: 0; text-decoration: underline; text-underline-offset: 3px; }
+  .logout-btn:hover { color: var(--text-sub); }
+  .main { margin-left: 220px; flex: 1; padding: 40px 36px; max-width: 960px; }
+  .page-eyebrow { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+  .page-title { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 500; color: var(--text); margin-bottom: 8px; }
+  .page-sub { font-size: 14px; color: var(--text-sub); line-height: 1.6; margin-bottom: 36px; }
+  .section { margin-bottom: 40px; }
+  .section-label { font-size: 11px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  .tool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .tool-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 22px 22px 20px; text-decoration: none; display: block; transition: background 0.15s, border-color 0.15s, transform 0.1s; position: relative; overflow: hidden; }
+  .tool-card:hover { background: var(--card-hover); border-color: var(--border-hover); transform: translateY(-2px); }
+  .tool-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .tool-card.coral::before { background: linear-gradient(90deg, var(--coral), #f4a08a); }
+  .tool-card.blue::before { background: linear-gradient(90deg, var(--blue), #4a6fd4); }
+  .tool-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; margin-bottom: 14px; }
+  .tool-icon.coral { background: rgba(244,133,117,0.15); }
+  .tool-icon.blue { background: rgba(40,70,171,0.2); }
+  .tool-name { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .tool-desc { font-size: 12.5px; color: var(--text-sub); line-height: 1.6; margin-bottom: 14px; }
+  .tool-meta { display: flex; align-items: center; gap: 8px; }
+  .tool-tag { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .tool-tag.live { background: rgba(100,200,120,0.12); color: #6dc87a; }
+  .tool-stages { font-size: 11px; color: var(--text-dim); }
+  .tool-arrow { position: absolute; bottom: 20px; right: 20px; font-size: 16px; color: var(--text-dim); transition: color 0.15s, transform 0.15s; }
+  .tool-card:hover .tool-arrow { color: var(--text-sub); transform: translateX(3px); }
+  .quick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+  .quick-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; display: flex; align-items: center; gap: 10px; opacity: 0.45; }
+  .quick-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .quick-name { font-size: 13px; color: var(--text-sub); font-weight: 500; }
+  .bottom-stripe { height: 3px; background: linear-gradient(90deg, var(--purple), var(--blue), var(--coral)); position: fixed; bottom: 0; left: 0; right: 0; }
+  @media (max-width: 700px) { .sidebar { display: none; } .main { margin-left: 0; padding: 24px 18px; } .tool-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="protected" id="app">
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="sidebar-logo">
+          <div class="logo-m">M</div>
+          <div class="sidebar-brand">MIRJ Creative</div>
+        </div>
+        <div class="sidebar-env">Internal</div>
+      </div>
+      <nav class="sidebar-nav">
+        <span class="nav-label">Workspace</span>
+        <a class="nav-item active" href="dashboard.html">
+          <div class="nav-dot" style="background:var(--purple)"></div>Dashboard
+        </a>
+        <span class="nav-label">Audit Tools</span>
+        <a class="nav-item" href="ops-audit.html">
+          <div class="nav-dot" style="background:var(--coral)"></div>Operations Audit
+        </a>
+        <a class="nav-item" href="ai-audit.html">
+          <div class="nav-dot" style="background:var(--blue)"></div>AI Workflow Audit
+        </a>
+        <span class="nav-label">Resources</span>
+        <div class="nav-item dim">
+          <div class="nav-dot" style="background:var(--muted)"></div>SOPs and Templates<span class="soon-tag">Soon</span>
+        </div>
+        <div class="nav-item dim">
+          <div class="nav-dot" style="background:var(--muted)"></div>Client Resources<span class="soon-tag">Soon</span>
+        </div>
+        <div class="nav-item dim">
+          <div class="nav-dot" style="background:var(--muted)"></div>Proposals<span class="soon-tag">Soon</span>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="logout-btn" onclick="logout()">Sign out</button>
+      </div>
+    </aside>
+    <main class="main">
+      <div class="page-eyebrow">Good to have you back</div>
+      <div class="page-title">MIRJ Creative Workspace</div>
+      <div class="page-sub">Your internal tools, audit pipelines, and resources in one place.</div>
+      <div class="section">
+        <div class="section-label">Audit Pipelines</div>
+        <div class="tool-grid">
+          <a class="tool-card coral" href="ops-audit.html">
+            <div class="tool-icon coral">⚙️</div>
+            <div class="tool-name">Operations Audit</div>
+            <div class="tool-desc">For small businesses feeling operational friction but unable to name the source. Covers communication, process, tools, team clarity, and visibility.</div>
+            <div class="tool-meta">
+              <span class="tool-tag live">Live</span>
+              <span class="tool-stages">5-stage pipeline</span>
+            </div>
+            <div class="tool-arrow">→</div>
+          </a>
+          <a class="tool-card blue" href="ai-audit.html">
+            <div class="tool-icon blue">✦</div>
+            <div class="tool-name">AI Workflow Audit</div>
+            <div class="tool-desc">For teams ready to identify where AI can eliminate manual effort and reduce friction in their existing workflows.</div>
+            <div class="tool-meta">
+              <span class="tool-tag live">Live</span>
+              <span class="tool-stages">5-stage pipeline</span>
+            </div>
+            <div class="tool-arrow">→</div>
+          </a>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-label">Coming Soon</div>
+        <div class="quick-grid">
+          <div class="quick-item"><div class="quick-dot" style="background:var(--purple)"></div><div class="quick-name">SOPs and Templates</div></div>
+          <div class="quick-item"><div class="quick-dot" style="background:var(--coral)"></div><div class="quick-name">Client Resources</div></div>
+          <div class="quick-item"><div class="quick-dot" style="background:var(--blue)"></div><div class="quick-name">Proposals</div></div>
+          <div class="quick-item"><div class="quick-dot" style="background:var(--muted)"></div><div class="quick-name">Findings Report Builder</div></div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div class="bottom-stripe"></div>
+</div>
+<script>
+  if (sessionStorage.getItem('mirj_auth') !== 'true') { window.location.href = 'index.html'; }
+  else { document.getElementById('app').style.display = 'block'; }
+  function logout() { sessionStorage.removeItem('mirj_auth'); window.location.href = 'index.html'; }
+</script>
+</body>
+</html>

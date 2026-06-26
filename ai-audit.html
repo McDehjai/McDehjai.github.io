@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIRJ Creative — AI Workflow Audit</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600&display=swap');
+  :root {
+    --coral: #F48575; --blue: #2846ab; --purple: #8354c5;
+    --muted: #8487ae; --dark: #1a1a2e; --bg: #0f0f1a;
+    --card: #1a1a2e; --border: rgba(255,255,255,0.07);
+    --text: #f0eef8; --text-sub: #8487ae; --text-dim: rgba(132,135,174,0.6);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  .protected { display: none; }
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar { width: 220px; background: var(--card); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; }
+  .sidebar-top { padding: 24px 20px 20px; border-bottom: 1px solid var(--border); }
+  .sidebar-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .logo-m { width: 32px; height: 32px; background: var(--coral); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 600; color: white; flex-shrink: 0; }
+  .sidebar-brand { font-family: 'Playfair Display', serif; font-size: 14px; color: var(--text); }
+  .sidebar-env { font-size: 10px; color: var(--purple); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 6px; padding: 3px 8px; background: rgba(131,84,197,0.15); border-radius: 4px; display: inline-block; }
+  .sidebar-nav { padding: 16px 12px; flex: 1; }
+  .nav-label { font-size: 10px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; padding: 0 8px; margin-bottom: 6px; margin-top: 16px; display: block; }
+  .nav-label:first-child { margin-top: 0; }
+  .nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; font-size: 13px; color: var(--text-sub); cursor: pointer; transition: background 0.15s, color 0.15s; text-decoration: none; margin-bottom: 2px; }
+  .nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+  .nav-item.active { background: rgba(40,70,171,0.2); color: #7fa0e8; }
+  .nav-item.dim { opacity: 0.4; cursor: default; pointer-events: none; }
+  .nav-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .soon-tag { font-size: 9px; background: rgba(255,255,255,0.06); color: var(--text-dim); padding: 1px 6px; border-radius: 3px; margin-left: auto; }
+  .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); }
+  .logout-btn { font-size: 12px; color: var(--text-dim); cursor: pointer; background: none; border: none; font-family: inherit; padding: 0; text-decoration: underline; text-underline-offset: 3px; }
+  .main { margin-left: 220px; flex: 1; padding: 36px 36px 80px; }
+  .back-link { font-size: 12px; color: var(--text-dim); text-decoration: none; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 16px; transition: color 0.15s; }
+  .back-link:hover { color: var(--text-sub); }
+  .header-stripe { height: 3px; background: linear-gradient(90deg, var(--blue), #4a6fd4); border-radius: 3px; margin-bottom: 20px; }
+  .tool-eyebrow { font-size: 11px; font-weight: 600; color: #7fa0e8; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+  .tool-title { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 500; color: var(--text); margin-bottom: 8px; }
+  .tool-desc { font-size: 14px; color: var(--text-sub); line-height: 1.65; margin-bottom: 28px; }
+  /* Override original tool styles for dark theme */
+  .audit-wrap { padding: 0 !important; }
+  .header-bar { display: none !important; }
+  .bottom-stripe { height: 3px; background: linear-gradient(90deg, var(--blue), var(--purple), var(--coral)); position: fixed; bottom: 0; left: 0; right: 0; }
+  @media (max-width: 700px) { .sidebar { display: none; } .main { margin-left: 0; padding: 24px 18px 80px; } }
+</style>
+</head>
+<body>
+<div class="protected" id="app">
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="sidebar-logo">
+          <div class="logo-m">M</div>
+          <div class="sidebar-brand">MIRJ Creative</div>
+        </div>
+        <div class="sidebar-env">Internal</div>
+      </div>
+      <nav class="sidebar-nav">
+        <span class="nav-label">Workspace</span>
+        <a class="nav-item" href="dashboard.html"><div class="nav-dot" style="background:var(--purple)"></div>Dashboard</a>
+        <span class="nav-label">Audit Tools</span>
+        <a class="nav-item" href="ops-audit.html"><div class="nav-dot" style="background:var(--coral)"></div>Operations Audit</a>
+        <a class="nav-item active" href="ai-audit.html"><div class="nav-dot" style="background:var(--blue)"></div>AI Workflow Audit</a>
+        <span class="nav-label">Resources</span>
+        <div class="nav-item dim"><div class="nav-dot" style="background:var(--muted)"></div>SOPs and Templates<span class="soon-tag">Soon</span></div>
+        <div class="nav-item dim"><div class="nav-dot" style="background:var(--muted)"></div>Client Resources<span class="soon-tag">Soon</span></div>
+        <div class="nav-item dim"><div class="nav-dot" style="background:var(--muted)"></div>Proposals<span class="soon-tag">Soon</span></div>
+      </nav>
+      <div class="sidebar-footer"><button class="logout-btn" onclick="logout()">Sign out</button></div>
+    </aside>
+    <main class="main">
+      <a class="back-link" href="dashboard.html">← Back to dashboard</a>
+      <div class="header-stripe"></div>
+      <div class="tool-eyebrow">Audit Pipeline</div>
+      <div class="tool-title">AI Workflow Audit</div>
+      <div class="tool-desc">A five-stage AI-assisted pipeline for auditing client workflows and identifying where AI can reduce friction and eliminate manual effort.</div>
+
+      <!-- ORIGINAL TOOL INJECTED BELOW -->
+      <h2 class="sr-only">MIRJ Creative AI Workflow Audit Tool</h2>
+<style>
+:root { --color-background-primary:#1a1a2e; --color-background-secondary:#13132a; --color-border-tertiary:rgba(255,255,255,0.08); --color-border-secondary:rgba(255,255,255,0.12); --color-text-primary:#f0eef8; --color-text-secondary:#8487ae; --color-text-tertiary:rgba(132,135,174,0.5); --font-sans:'DM Sans',system-ui,sans-serif; --border-radius-lg:12px; --border-radius-md:8px; }
+</style>
+
+<h2 class="sr-only">MIRJ Creative AI Workflow Audit Tool — a five-stage pipeline powered by Claude</h2>
+
+<style>
+:root {
+  --coral: #E8614A;
+  --purple: #5B3FA6;
+  --blue: #2E6DAD;
+  --cream: #FDF6EC;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+
+.audit-wrap { padding: 1rem 0 2rem; }
+
+.header-bar {
+  background: var(--purple);
+  border-radius: var(--border-radius-lg);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+.header-bar .brand { color: #fff; font-size: 18px; font-weight: 500; letter-spacing: 0.03em; }
+.header-bar .sub { color: #C4B8F0; font-size: 13px; margin-top: 2px; }
+.header-bar .stage-badge {
+  background: var(--coral);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: var(--border-radius-md);
+}
+
+.stage-nav {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 1.5rem;
+}
+.stage-dot {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-border-tertiary);
+  transition: background 0.2s;
+}
+.stage-dot.active { background: var(--coral); }
+.stage-dot.done { background: var(--purple); }
+
+.stage-card {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+}
+.stage-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--coral);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+.stage-title {
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin-bottom: 8px;
+}
+.stage-desc {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+textarea {
+  width: 100%;
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: var(--border-radius-md);
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: var(--font-sans);
+  color: var(--color-text-primary);
+  background: var(--color-background-secondary);
+  resize: vertical;
+  line-height: 1.6;
+  min-height: 120px;
+}
+textarea:focus { outline: none; border-color: var(--purple); }
+textarea::placeholder { color: var(--color-text-tertiary); }
+
+.field-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.run-btn {
+  width: 100%;
+  padding: 11px;
+  background: var(--purple);
+  color: #fff;
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: opacity 0.15s;
+  font-family: var(--font-sans);
+}
+.run-btn:hover { opacity: 0.88; }
+.run-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.output-box {
+  background: var(--color-background-secondary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-md);
+  padding: 1rem 1.25rem;
+  font-size: 13px;
+  color: var(--color-text-primary);
+  line-height: 1.75;
+  white-space: pre-wrap;
+  margin-top: 1rem;
+  min-height: 80px;
+}
+.output-box.loading { color: var(--color-text-tertiary); font-style: italic; }
+
+.next-btn {
+  width: 100%;
+  padding: 11px;
+  background: transparent;
+  color: var(--purple);
+  border: 1.5px solid var(--purple);
+  border-radius: var(--border-radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 10px;
+  font-family: var(--font-sans);
+  transition: background 0.15s, color 0.15s;
+}
+.next-btn:hover { background: var(--purple); color: #fff; }
+
+.complete-card {
+  background: var(--color-background-secondary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  text-align: center;
+}
+.complete-card .check { font-size: 32px; margin-bottom: 8px; }
+.complete-card h3 { font-size: 17px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px; }
+.complete-card p { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+
+.role-tags {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+.role-tag {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: var(--border-radius-md);
+  font-weight: 500;
+}
+.role-tag.human { background: #EEF0FF; color: var(--purple); }
+.role-tag.ai { background: #FEF0ED; color: var(--coral); }
+
+.hint-box {
+  background: #EEF0FF;
+  border-radius: var(--border-radius-md);
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--purple);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.reset-link {
+  display: block;
+  text-align: center;
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  margin-top: 1rem;
+  text-decoration: underline;
+}
+</style>
+
+<div class="audit-wrap">
+  <div class="header-bar">
+    <div>
+      <div class="brand">MIRJ Creative</div>
+      <div class="sub">AI Workflow Audit Pipeline</div>
+    </div>
+    <div class="stage-badge" id="stage-badge">Stage 1 of 5</div>
+  </div>
+
+  <div class="stage-nav" id="stage-nav"></div>
+
+  <div id="stage-container"></div>
+
+  <span class="reset-link" id="reset-link" onclick="resetPipeline()" style="display:none">Start over</span>
+</div>
+
+<script>
+const STAGES = [
+  {
+    num: 1,
+    label: "Stage 01",
+    title: "Client Intake Summary",
+    desc: "Paste the client's completed intake responses below. Claude will summarize them into a structured brief, identify pain points, and flag missing or vague information.",
+    placeholder: "Paste the client's intake responses here...\n\nExample: Client is a 2-person event marketing agency. Tools: Asana, Canva, Google Drive. Main pain: approval chasing and manual asset reformatting. AI experience: tried ChatGPT once, did not stick.",
+    promptFn: (input) => `You are an AI workflow consultant at MIRJ Creative. A client has submitted an intake form for an AI Workflow Audit.
+
+Summarize their responses into a structured brief with these three sections:
+
+1. CLIENT OVERVIEW — 2 to 3 sentences summarizing who they are and their context.
+
+2. TOP 3 WORKFLOW PAIN POINTS — Specific, named pain points based on what they shared. Go one layer deeper than what they said to identify the likely root cause of each.
+
+3. FLAGGED GAPS — List any questions that were left vague, unanswered, or where more information is needed before the audit can proceed. Be specific about what is missing and why it matters.
+
+Keep the tone confident and direct. No filler language.
+
+Client intake responses:
+${input}`,
+    hint: "After this stage, review the flagged gaps and follow up with the client before moving to Stage 2."
+  },
+  {
+    num: 2,
+    label: "Stage 02",
+    title: "Research and Context Building",
+    desc: "Paste the Stage 1 brief below. Claude will research the client's industry norms, tool stack gaps, and how similar teams are using AI today.",
+    placeholder: "Paste the Stage 1 structured brief here...",
+    promptFn: (input) => `You are an AI workflow consultant at MIRJ Creative preparing a context brief for a client audit.
+
+Using the intake summary below, produce a research context brief with these three sections:
+
+1. COMMON PAIN POINTS FOR TEAMS LIKE THIS — What are the most common workflow problems for teams of this type, size, and industry? Be specific. Name the patterns that show up again and again.
+
+2. TOOL STACK GAPS — What are the known limitations and integration gaps in the tools they listed? What does not talk to what, and what does that cost them in daily effort?
+
+3. HOW TEAMS LIKE THIS ARE USING AI — What AI tools and workflows are being adopted by similar teams right now? What is working? What fails to stick and why?
+
+End with a section called KEY AUDIT ANCHORS listing 3 specific insights from your research that should drive the recommendations in this audit.
+
+Be specific. No generic statements.
+
+Intake summary:
+${input}`,
+    hint: "Use the Key Audit Anchors from this output to shape your Stage 3 prompt for maximum specificity."
+  },
+  {
+    num: 3,
+    label: "Stage 03",
+    title: "Audit Draft Generation",
+    desc: "Paste the intake summary and context brief together below. Claude will generate the full first-pass audit document.",
+    placeholder: "Paste the intake summary and context brief together here...",
+    promptFn: (input) => `You are writing a first-pass AI Workflow Audit for MIRJ Creative. Write a specific, direct, professional audit document with these five sections:
+
+1. EXECUTIVE SUMMARY — 3 to 4 sentences. Name the core problem, the good news, and what this audit delivers. No fluff.
+
+2. CURRENT WORKFLOW ASSESSMENT — Describe how work moves through this team today based on what they shared. Name where it is person-dependent, informal, or fragile. Flag anything unclear with [NEEDS INFO].
+
+3. TOOL STACK ANALYSIS — Assess each tool individually. Name what it is being used for, what it is not being used for, and what that gap costs the team.
+
+4. IDENTIFIED GAPS AND FRICTION POINTS — Name each gap clearly. For each one, state the root cause, not just the symptom.
+
+5. PRELIMINARY RECOMMENDATIONS — 5 recommendations in priority order by impact relative to effort. Each recommendation must be specific enough that the client knows what to do on Monday morning. Flag anything that needs a strategic decision from the human consultant with [STRATEGIC CALL].
+
+Do not use generic filler. Flag any section where you need more information with [NEEDS INFO].
+
+Client context:
+${input}`,
+    hint: "Review every [NEEDS INFO] and [STRATEGIC CALL] flag before moving to Stage 4. These are your edit targets."
+  },
+  {
+    num: 4,
+    label: "Stage 04",
+    title: "Review and Refinement",
+    desc: "Paste the Stage 3 draft below. Claude will check for consistency, flag vague recommendations, and sharpen the language throughout.",
+    placeholder: "Paste the Stage 3 audit draft here...",
+    promptFn: (input) => `You are reviewing a draft AI Workflow Audit for MIRJ Creative. Do the following four things:
+
+1. CONSISTENCY CHECK — Identify any sections that contradict each other or where the same problem is named differently in different places.
+
+2. TONE CHECK — Flag any sentences that hedge unnecessarily (words like "likely," "probably," "might") and rewrite them to be direct. The audit should read with confidence.
+
+3. CLARITY CHECK — Identify any recommendation that is too vague to act on. Rewrite it to be specific. Every recommendation should name what to do, who does it, and approximately how long it takes.
+
+4. WHAT TO CARRY FORWARD — Write 3 to 5 bullet points summarizing what is strong in this draft and what the human consultant should confirm or adjust before delivery.
+
+Show your work. Quote the original text and then show the rewrite.
+
+Draft audit:
+${input}`,
+    hint: "This output is your editorial layer. Accept or reject each suggested rewrite based on your strategic judgment before assembling the delivery package."
+  },
+  {
+    num: 5,
+    label: "Stage 05",
+    title: "Delivery Package Assembly",
+    desc: "Paste the final refined audit below. Claude will write a one-page executive summary and a prioritized next steps plan ready for client delivery.",
+    placeholder: "Paste the final refined audit here...",
+    promptFn: (input) => `You are assembling the final delivery package for a MIRJ Creative AI Workflow Audit. Produce two components:
+
+COMPONENT 1 — ONE-PAGE EXECUTIVE SUMMARY
+Write this for a non-technical stakeholder who has not read the full audit. 4 to 5 short paragraphs. Cover: what we found, why it matters, and what happens next. Warm, confident, and specific. No jargon.
+
+COMPONENT 2 — NEXT STEPS PLAN
+List 5 prioritized action items ranked by impact and ease of implementation. For each one:
+- Name the action in one line
+- State the specific outcome it produces
+- Give a realistic timeline (this week / week 1 / week 2 to 3 / month 1)
+- Estimate the cost (zero / low / medium / requires budget conversation)
+
+End with a single sentence the consultant can use to open the delivery call.
+
+Final audit:
+${input}`,
+    hint: "After delivery, use the recommended next steps as the bridge into your AI Workflow Retainer conversation."
+  }
+];
+
+let currentStage = 0;
+let outputs = {};
+
+function renderNav() {
+  const nav = document.getElementById('stage-nav');
+  nav.innerHTML = '';
+  STAGES.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'stage-dot' + (i < currentStage ? ' done' : i === currentStage ? ' active' : '');
+    nav.appendChild(dot);
+  });
+  document.getElementById('stage-badge').textContent = `Stage ${currentStage + 1} of 5`;
+}
+
+function renderStage() {
+  if (currentStage >= STAGES.length) {
+    renderComplete();
+    return;
+  }
+  const s = STAGES[currentStage];
+  const container = document.getElementById('stage-container');
+  container.innerHTML = `
+    <div class="stage-card">
+      <div class="stage-label">${s.label}</div>
+      <div class="stage-title">${s.title}</div>
+      <div class="role-tags">
+        <span class="role-tag human"><i class="ti ti-user" aria-hidden="true"></i> Human: paste input</span>
+        <span class="role-tag ai"><i class="ti ti-sparkles" aria-hidden="true"></i> AI: generates output</span>
+      </div>
+      <div class="stage-desc">${s.desc}</div>
+      <div class="hint-box"><i class="ti ti-info-circle" aria-hidden="true"></i> ${s.hint}</div>
+      <label class="field-label" for="stage-input">Your input</label>
+      <textarea id="stage-input" placeholder="${s.placeholder}" rows="6"></textarea>
+      <button class="run-btn" id="run-btn" onclick="runStage()">
+        <i class="ti ti-player-play" aria-hidden="true"></i> Run stage ${s.num} ↗
+      </button>
+      <div id="output-area" style="display:none">
+        <div class="output-box" id="output-text"></div>
+        <button class="next-btn" onclick="nextStage()">
+          ${currentStage < 4 ? `Continue to stage ${s.num + 1} →` : 'Assemble final package →'}
+        </button>
+      </div>
+    </div>
+  `;
+  document.getElementById('reset-link').style.display = currentStage > 0 ? 'block' : 'none';
+  renderNav();
+}
+
+async function runStage() {
+  const input = document.getElementById('stage-input').value.trim();
+  if (!input) {
+    alert('Please paste your input before running this stage.');
+    return;
+  }
+  const btn = document.getElementById('run-btn');
+  btn.disabled = true;
+  btn.textContent = 'Running...';
+  const outputArea = document.getElementById('output-area');
+  const outputText = document.getElementById('output-text');
+  outputArea.style.display = 'block';
+  outputText.className = 'output-box loading';
+  outputText.textContent = 'Claude is thinking...';
+
+  const s = STAGES[currentStage];
+  const prompt = s.promptFn(input);
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.find(b => b.type === 'text')?.text || 'No output returned.';
+    outputs[currentStage] = text;
+    outputText.className = 'output-box';
+    outputText.textContent = text;
+  } catch (e) {
+    outputText.className = 'output-box';
+    outputText.textContent = 'Something went wrong. Please try again.';
+  }
+  btn.disabled = false;
+  btn.textContent = `Re-run stage ${s.num}`;
+}
+
+function nextStage() {
+  currentStage++;
+  renderStage();
+  renderNav();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderComplete() {
+  const container = document.getElementById('stage-container');
+  container.innerHTML = `
+    <div class="complete-card">
+      <div class="check"><i class="ti ti-circle-check" style="color: var(--purple); font-size: 40px;" aria-hidden="true"></i></div>
+      <h3>Audit pipeline complete</h3>
+      <p>All five stages have been run. Your delivery package is ready to review and send.<br><br>
+      Use the Stage 5 output as your base document. Add your client's name, your MIRJ Creative header, and schedule the delivery call.</p>
+    </div>
+  `;
+  document.getElementById('stage-badge').textContent = 'Complete';
+  document.getElementById('reset-link').style.display = 'block';
+  renderNav();
+}
+
+function resetPipeline() {
+  currentStage = 0;
+  outputs = {};
+  renderStage();
+}
+
+renderStage();
+</script>
+
+
+    </main>
+  </div>
+  <div class="bottom-stripe"></div>
+</div>
+<script>
+  if (sessionStorage.getItem('mirj_auth') !== 'true') { window.location.href = 'index.html'; }
+  else { document.getElementById('app').style.display = 'block'; }
+  function logout() { sessionStorage.removeItem('mirj_auth'); window.location.href = 'index.html'; }
+</script>
+</body>
+</html>

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIRJ Creative — Operations Audit</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600&display=swap');
+  :root {
+    --coral: #F48575; --blue: #2846ab; --purple: #8354c5;
+    --muted: #8487ae; --dark: #1a1a2e; --bg: #0f0f1a;
+    --card: #1a1a2e; --card-hover: #20203a;
+    --border: rgba(255,255,255,0.07); --border-hover: rgba(255,255,255,0.14);
+    --text: #f0eef8; --text-sub: #8487ae; --text-dim: rgba(132,135,174,0.6);
+    --bg-input: rgba(255,255,255,0.04);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  .protected { display: none; }
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar { width: 220px; background: var(--card); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; }
+  .sidebar-top { padding: 24px 20px 20px; border-bottom: 1px solid var(--border); }
+  .sidebar-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .logo-m { width: 32px; height: 32px; background: var(--coral); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 600; color: white; flex-shrink: 0; }
+  .sidebar-brand { font-family: 'Playfair Display', serif; font-size: 14px; color: var(--text); }
+  .sidebar-env { font-size: 10px; color: var(--purple); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 6px; padding: 3px 8px; background: rgba(131,84,197,0.15); border-radius: 4px; display: inline-block; }
+  .sidebar-nav { padding: 16px 12px; flex: 1; }
+  .nav-label { font-size: 10px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; padding: 0 8px; margin-bottom: 6px; margin-top: 16px; display: block; }
+  .nav-label:first-child { margin-top: 0; }
+  .nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; font-size: 13px; color: var(--text-sub); cursor: pointer; transition: background 0.15s, color 0.15s; text-decoration: none; margin-bottom: 2px; }
+  .nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+  .nav-item.active { background: rgba(244,133,117,0.15); color: var(--coral); }
+  .nav-item.dim { opacity: 0.4; cursor: default; pointer-events: none; }
+  .nav-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .soon-tag { font-size: 9px; background: rgba(255,255,255,0.06); color: var(--text-dim); padding: 1px 6px; border-radius: 3px; margin-left: auto; }
+  .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); }
+  .logout-btn { font-size: 12px; color: var(--text-dim); cursor: pointer; background: none; border: none; font-family: inherit; padding: 0; text-decoration: underline; text-underline-offset: 3px; }
+  /* MAIN */
+  .main { margin-left: 220px; flex: 1; padding: 36px 36px 80px; max-width: 860px; }
+  /* HEADER */
+  .tool-header { margin-bottom: 28px; }
+  .back-link { font-size: 12px; color: var(--text-dim); text-decoration: none; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 16px; transition: color 0.15s; }
+  .back-link:hover { color: var(--text-sub); }
+  .header-stripe { height: 3px; background: linear-gradient(90deg, var(--coral), #f4a08a); border-radius: 3px; margin-bottom: 20px; }
+  .tool-eyebrow { font-size: 11px; font-weight: 600; color: var(--coral); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+  .tool-title { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 500; color: var(--text); margin-bottom: 8px; }
+  .tool-desc { font-size: 14px; color: var(--text-sub); line-height: 1.65; }
+  /* PROGRESS */
+  .progress-row { display: flex; gap: 5px; margin-bottom: 8px; }
+  .prog-seg { flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.08); transition: background 0.3s; }
+  .prog-seg.done { background: var(--purple); }
+  .prog-seg.active { background: var(--coral); }
+  .prog-label { font-size: 11px; color: var(--text-dim); margin-bottom: 24px; }
+  /* TIMELINE */
+  .timeline { display: flex; margin-bottom: 28px; }
+  .tl-item { flex: 1; text-align: center; position: relative; }
+  .tl-item:not(:last-child)::after { content:''; position:absolute; top:11px; right:0; width:50%; height:1px; background:var(--border); }
+  .tl-item:not(:first-child)::before { content:''; position:absolute; top:11px; left:0; width:50%; height:1px; background:var(--border); }
+  .tl-dot { width: 22px; height: 22px; border-radius: 50%; background: rgba(255,255,255,0.06); margin: 0 auto 5px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: var(--text-dim); position: relative; z-index: 1; transition: background 0.2s; }
+  .tl-dot.done { background: var(--purple); color: white; }
+  .tl-dot.active { background: var(--coral); color: white; }
+  .tl-name { font-size: 10px; color: var(--text-dim); line-height: 1.3; }
+  .tl-name.active { color: var(--coral); font-weight: 600; }
+  .tl-name.done { color: var(--purple); }
+  /* STAGE */
+  .stage-eyebrow { font-size: 11px; font-weight: 600; color: var(--coral); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px; }
+  .stage-headline { font-size: 20px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+  .role-tags { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .role-tag { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+  .role-tag.human { background: rgba(40,70,171,0.2); color: #7fa0e8; }
+  .role-tag.ai { background: rgba(244,133,117,0.15); color: var(--coral); }
+  .stage-desc { font-size: 13.5px; color: var(--text-sub); line-height: 1.65; margin-bottom: 16px; }
+  .hint { background: rgba(131,84,197,0.1); border-left: 3px solid var(--purple); border-radius: 0 6px 6px 0; padding: 10px 14px; font-size: 12.5px; color: #b09ee0; line-height: 1.6; margin-bottom: 20px; }
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+  .field-label { display: block; font-size: 11px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+  textarea { width: 100%; background: var(--bg-input); border: 1px solid var(--border); border-radius: 10px; padding: 13px 15px; font-size: 13.5px; font-family: inherit; color: var(--text); resize: vertical; line-height: 1.65; min-height: 140px; transition: border-color 0.2s; }
+  textarea:focus { outline: none; border-color: var(--coral); }
+  textarea::placeholder { color: var(--text-dim); }
+  .run-btn { width: 100%; padding: 13px; background: var(--coral); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 14px; font-family: inherit; transition: opacity 0.15s, transform 0.1s; }
+  .run-btn:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
+  .run-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .output-wrap { margin-top: 20px; display: none; }
+  .output-label { font-size: 11px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+  .output-box { background: var(--bg-input); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; font-size: 13.5px; color: var(--text); line-height: 1.75; white-space: pre-wrap; min-height: 100px; }
+  .output-box.loading { color: var(--text-dim); font-style: italic; }
+  .next-btn { width: 100%; padding: 13px; background: transparent; color: var(--purple); border: 1.5px solid var(--purple); border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 10px; font-family: inherit; transition: background 0.15s, color 0.15s; }
+  .next-btn:hover { background: var(--purple); color: white; }
+  /* COMPLETE */
+  .complete-wrap { text-align: center; padding: 32px 0; }
+  .complete-icon { width: 56px; height: 56px; background: linear-gradient(135deg, var(--coral), var(--purple)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 22px; }
+  .complete-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 500; color: var(--text); margin-bottom: 10px; }
+  .complete-desc { font-size: 14px; color: var(--text-sub); line-height: 1.65; max-width: 440px; margin: 0 auto 28px; }
+  .service-box { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; text-align: left; }
+  .service-box-label { font-size: 11px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.09em; margin-bottom: 14px; }
+  .svc-row { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .svc-row:last-child { border-bottom: none; }
+  .svc-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+  .svc-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .svc-fit { font-size: 12px; color: var(--text-sub); margin-top: 2px; line-height: 1.5; }
+  .reset-link { display: none; text-align: center; font-size: 12px; color: var(--text-dim); cursor: pointer; margin-top: 20px; text-decoration: underline; text-underline-offset: 3px; }
+  .bottom-stripe { height: 3px; background: linear-gradient(90deg, var(--coral), var(--blue), var(--purple)); position: fixed; bottom: 0; left: 0; right: 0; }
+  @media (max-width: 700px) { .sidebar { display: none; } .main { margin-left: 0; padding: 24px 18px 80px; } }
+</style>
+</head>
+<body>
+<div class="protected" id="app">
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="sidebar-logo">
+          <div class="logo-m">M</div>
+          <div class="sidebar-brand">MIRJ Creative</div>
+        </div>
+        <div class="sidebar-env">Internal</div>
+      </div>
+      <nav class="sidebar-nav">
+        <span class="nav-label">Workspace</span>
+        <a class="nav-item" href="dashboard.html"><div class="nav-dot" style="background:var(--purple)"></div>Dashboard</a>
+        <span class="nav-label">Audit Tools</span>
+        <a class="nav-item active" href="ops-audit.html"><div class="nav-dot" style="background:var(--coral)"></div>Operations Audit</a>
+        <a class="nav-item" href="ai-audit.html"><div class="nav-dot" style="background:var(--blue)"></div>AI Workflow Audit</a>
+        <span class="nav-label">Resources</span>
+        <div class="nav-item dim"><div class="nav-dot" style="background:var(--muted)"></div>SOPs and Templates<span class="soon-tag">Soon</span></div>
+        <div class="nav-item dim"><div class="nav-dot" style="background:var(--muted)"></div>Client Resources<span class="soon-tag">Soon</span></div>
+        <div class="nav-item dim"><div class="nav-dot" style="background:var(--muted)"></div>Proposals<span class="soon-tag">Soon</span></div>
+      </nav>
+      <div class="sidebar-footer"><button class="logout-btn" onclick="logout()">Sign out</button></div>
+    </aside>
+
+    <main class="main">
+      <a class="back-link" href="dashboard.html">← Back to dashboard</a>
+      <div class="header-stripe"></div>
+      <div class="tool-header">
+        <div class="tool-eyebrow">Audit Pipeline</div>
+        <div class="tool-title">Operations Audit</div>
+        <div class="tool-desc">A five-stage AI-assisted pipeline for auditing small business operations. Works alongside the client intake form and live call guide.</div>
+      </div>
+
+      <div class="progress-row" id="progress-row"></div>
+      <div class="prog-label" id="prog-label">Stage 1 of 5</div>
+      <div class="timeline" id="timeline"></div>
+      <div id="stage-container"></div>
+      <span class="reset-link" id="reset-link" onclick="resetPipeline()">Start over</span>
+    </main>
+  </div>
+  <div class="bottom-stripe"></div>
+</div>
+
+<script>
+if (sessionStorage.getItem('mirj_auth') !== 'true') { window.location.href = 'index.html'; }
+else { document.getElementById('app').style.display = 'block'; }
+function logout() { sessionStorage.removeItem('mirj_auth'); window.location.href = 'index.html'; }
+
+const STAGES = [
+  { num:1, short:'Intake', label:'Stage 01', title:'Intake Summary',
+    desc:'Paste the client\'s completed intake form responses below. Claude will summarize them into a structured brief, identify the core friction areas, and flag anything vague or missing before you go deeper.',
+    placeholder:'Paste the client\'s intake responses here...\n\nExample:\nBusiness: 4-person event planning company\nTools: Gmail, Google Drive, Trello, QuickBooks\nFriction areas: task tracking, client follow-up, repeating the same work\nSOP status: No, lives in my head\nBiggest impact if fixed: Knowing who is doing what without asking',
+    hint:'After this stage, resolve every [FOLLOW UP] flag before moving to Stage 2. Missing context compounds through every stage downstream.',
+    prompt: (i) => `You are an operations consultant at MIRJ Creative conducting a Business Operations Audit.
+
+A client has submitted their intake form. Summarize their responses into a structured brief with these three sections:
+
+1. CLIENT SNAPSHOT — Business type, team size, industry, and a one-sentence description of what they do. Note any context that will shape the audit.
+
+2. FRICTION AREAS — List every operational pain point they identified. Group related items together. Note whether each friction point seems surface-level (symptom) or structural (root cause).
+
+3. GAPS AND FLAGS — Identify anything vague, skipped, or inconsistent. Flag each with [FOLLOW UP] so the consultant knows what to clarify before the live call.
+
+Keep the tone direct and analytical. No filler.
+
+Client intake responses:\n${i}` },
+
+  { num:2, short:'Research', label:'Stage 02', title:'Context and Research',
+    desc:'Paste the Stage 1 brief below. Claude will build context around this client\'s business type, common operational patterns for teams like theirs, and where the real leverage points tend to be.',
+    placeholder:'Paste the Stage 1 structured brief here...',
+    hint:'Use the Audit Anchors from this stage to write sharper prompts in Stage 3. The more specific the anchors, the more specific the audit output.',
+    prompt: (i) => `You are an operations consultant at MIRJ Creative preparing context for a Business Operations Audit.
+
+Using the intake summary below, produce a research context brief with these four sections:
+
+1. OPERATIONAL PATTERNS FOR TEAMS LIKE THIS — What are the most common operational breakdowns for businesses of this type, size, and stage? Name specific patterns, not generic observations.
+
+2. TOOL STACK ASSESSMENT — Based on the tools they listed, what are the known limitations? Where are teams like this doing manual work they do not realize could be eliminated?
+
+3. COMMON ROOT CAUSES — Which root issues are likely present: single-point-of-failure ownership, no documentation, inconsistent handoffs, unclear accountability, or overlapping tools? Explain why.
+
+4. AUDIT ANCHORS — List 3 to 4 specific insights that should drive the audit recommendations. These make the audit feel written for this client specifically.
+
+Be specific and grounded. No generic advice.
+
+Intake summary:\n${i}` },
+
+  { num:3, short:'Draft', label:'Stage 03', title:'Audit Draft',
+    desc:'Paste the intake summary and context brief together below. Claude will generate the full first-pass operations audit document across five core areas.',
+    placeholder:'Paste the intake summary and context brief together here...',
+    hint:'Review every [NEEDS INFO] and [STRATEGIC CALL] flag before Stage 4. These are the places where the audit could mislead the client if left as-is.',
+    prompt: (i) => `You are writing a first-pass Business Operations Audit for MIRJ Creative. This audit is for a small business that feels operational friction but cannot identify where it is coming from.
+
+Write a specific, direct, professional audit document with these five sections:
+
+1. EXECUTIVE SUMMARY — 3 to 4 sentences. Name the core operational problem, what the audit found, and what addressing it would change. No fluff.
+
+2. HOW WORK MOVES TODAY — Describe the current operational state. Walk through how work gets initiated, executed, handed off, and completed. Name where it depends on one person's memory or a fragile workaround. Use [NEEDS INFO] anywhere the picture is incomplete.
+
+3. FRICTION POINT ANALYSIS — Name each friction point. For each: state the symptom, the likely root cause, and the operational category (communication, process, tools, team clarity, or visibility). Go one level deeper than what the client said.
+
+4. TOOL AND SYSTEM GAPS — Assess their tool stack. Name what each tool is being used for versus what it could do. Identify where manual effort is filling a gap that a system should handle.
+
+5. PRIORITY RECOMMENDATIONS — 5 recommendations in priority order by impact relative to effort. Each must be specific enough to act on next week. Flag strategic judgment calls with [STRATEGIC CALL] and missing info with [NEEDS INFO].
+
+Write for this client specifically.
+
+Client context:\n${i}` },
+
+  { num:4, short:'Refine', label:'Stage 04', title:'Review and Refinement',
+    desc:'Paste the Stage 3 draft below. Claude will check for consistency, sharpen vague recommendations, and flag anything needing your consultant judgment before delivery.',
+    placeholder:'Paste the Stage 3 audit draft here...',
+    hint:'This is your editorial pass. Accept the rewrites you agree with and ignore the ones you do not. The Consultant Handoff Notes are your prep for the delivery call.',
+    prompt: (i) => `You are reviewing a draft Business Operations Audit for MIRJ Creative. Make this audit sharper, more consistent, and more useful without changing the consultant's strategic conclusions.
+
+Do these four things:
+
+1. CONSISTENCY CHECK — Find any place where the same issue is named differently, or where a recommendation contradicts the assessment. Quote the inconsistency and explain the fix.
+
+2. TONE CHECK — Find any sentence that hedges unnecessarily or reads like a template. Words like "may," "might," "could potentially" are warning signs. Rewrite each flagged sentence to be direct. Show original and rewrite.
+
+3. RECOMMENDATION SHARPNESS — Find any recommendation vague enough that the client would not know what to do first. Rewrite it with: what to do, who does it, and a realistic timeframe. Show original and rewrite.
+
+4. CONSULTANT HANDOFF NOTES — Write 4 to 5 bullet points covering: what is strong in this draft, what needs a human judgment call, and what to watch for in the delivery conversation.
+
+Show your work throughout.
+
+Draft audit:\n${i}` },
+
+  { num:5, short:'Delivery', label:'Stage 05', title:'Delivery Package',
+    desc:'Paste the final refined audit below. Claude will assemble the client-facing executive summary and a prioritized next steps plan ready to send.',
+    placeholder:'Paste the final refined audit here...',
+    hint:'After delivery, use the Next Steps Plan as the natural bridge into your Alignment Reset or AI Workflow Retainer conversation. The client\'s momentum is highest right after they see this.',
+    prompt: (i) => `You are assembling the final delivery package for a MIRJ Creative Business Operations Audit.
+
+Produce two components:
+
+COMPONENT 1 — CLIENT-FACING EXECUTIVE SUMMARY
+Write for a business owner who has not read the full audit. 4 to 5 short paragraphs covering: what we found, why it matters to their business specifically, and what changes when they address it. Warm, confident, and concrete. No consulting jargon. Do not say "pain points." Write like a trusted advisor.
+
+COMPONENT 2 — NEXT STEPS PLAN
+List 5 action items ranked by impact and ease of implementation. For each:
+- Action: one clear line naming exactly what to do
+- Outcome: the specific result this produces
+- Timeline: this week / week 1 to 2 / week 3 to 4 / month 2
+- Lift: zero cost low effort / low cost medium effort / requires budget conversation
+
+End with one sentence the consultant can use to open the delivery call.
+
+Final audit:\n${i}` }
+];
+
+let current = 0;
+let outputs = {};
+
+function renderProgress() {
+  const row = document.getElementById('progress-row');
+  row.innerHTML = '';
+  STAGES.forEach((_,i) => {
+    const s = document.createElement('div');
+    s.className = 'prog-seg' + (i < current ? ' done' : i === current ? ' active' : '');
+    row.appendChild(s);
+  });
+  document.getElementById('prog-label').textContent =
+    current >= STAGES.length ? 'Complete' : `Stage ${current+1} of 5`;
+}
+
+function renderTimeline() {
+  const tl = document.getElementById('timeline');
+  tl.innerHTML = '';
+  STAGES.forEach((s,i) => {
+    const item = document.createElement('div');
+    item.className = 'tl-item';
+    const dc = i < current ? 'done' : i === current ? 'active' : '';
+    const nc = i < current ? 'done' : i === current ? 'active' : '';
+    item.innerHTML = `<div class="tl-dot ${dc}">${i < current ? '✓' : i+1}</div><div class="tl-name ${nc}">${s.short}</div>`;
+    tl.appendChild(item);
+  });
+}
+
+function renderStage() {
+  if (current >= STAGES.length) { renderComplete(); return; }
+  const s = STAGES[current];
+  document.getElementById('stage-container').innerHTML = `
+    <div class="stage-eyebrow">${s.label}</div>
+    <div class="stage-headline">${s.title}</div>
+    <div class="role-tags">
+      <span class="role-tag human">You: paste input</span>
+      <span class="role-tag ai">Claude: generates output</span>
+    </div>
+    <div class="stage-desc">${s.desc}</div>
+    <div class="hint">${s.hint}</div>
+    <div class="divider"></div>
+    <label class="field-label" for="stage-input">Your input</label>
+    <textarea id="stage-input" placeholder="${s.placeholder}" rows="7"></textarea>
+    <button class="run-btn" id="run-btn" onclick="runStage()">Run stage ${s.num}</button>
+    <div class="output-wrap" id="output-wrap">
+      <div class="divider"></div>
+      <div class="output-label">Claude's output</div>
+      <div class="output-box" id="output-text"></div>
+      <button class="next-btn" id="next-btn" onclick="nextStage()">${current < 4 ? `Continue to stage ${s.num+1} →` : 'Assemble delivery package →'}</button>
+    </div>`;
+  document.getElementById('reset-link').style.display = current > 0 ? 'block' : 'none';
+  renderProgress(); renderTimeline();
+}
+
+async function runStage() {
+  const input = document.getElementById('stage-input').value.trim();
+  if (!input) { alert('Paste your input before running this stage.'); return; }
+  const btn = document.getElementById('run-btn');
+  const wrap = document.getElementById('output-wrap');
+  const out = document.getElementById('output-text');
+  const nb = document.getElementById('next-btn');
+  btn.disabled = true; btn.textContent = 'Running…';
+  wrap.style.display = 'block';
+  out.className = 'output-box loading'; out.textContent = 'Claude is reading the input…';
+  if (nb) nb.style.display = 'none';
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000,
+        messages: [{ role: 'user', content: STAGES[current].prompt(input) }] })
+    });
+    const data = await res.json();
+    const text = data.content?.find(b => b.type === 'text')?.text || 'No output returned.';
+    outputs[current] = text;
+    out.className = 'output-box'; out.textContent = text;
+    if (nb) nb.style.display = 'block';
+  } catch(e) {
+    out.className = 'output-box'; out.textContent = 'Something went wrong. Check your connection and try again.';
+  }
+  btn.disabled = false; btn.textContent = `Re-run stage ${STAGES[current].num}`;
+}
+
+function nextStage() { current++; renderStage(); window.scrollTo({top:0,behavior:'smooth'}); }
+
+function renderComplete() {
+  document.getElementById('stage-container').innerHTML = `
+    <div class="complete-wrap">
+      <div class="complete-icon">✓</div>
+      <div class="complete-title">Audit pipeline complete</div>
+      <div class="complete-desc">All five stages are done. Your delivery package is ready. Use the Stage 5 output as your base document and add the client's name before the delivery call.</div>
+      <div class="service-box">
+        <div class="service-box-label">What comes next</div>
+        <div class="svc-row"><div class="svc-dot" style="background:var(--coral)"></div><div><div class="svc-name">AI Workflow Audit</div><div class="svc-fit">Client's friction is tool and workflow related. They're ready to explore AI integration.</div></div></div>
+        <div class="svc-row"><div class="svc-dot" style="background:var(--blue)"></div><div><div class="svc-name">Alignment Reset</div><div class="svc-fit">Client knows the problem and needs focused help fast. A 3-session sprint to realign.</div></div></div>
+        <div class="svc-row"><div class="svc-dot" style="background:var(--purple)"></div><div><div class="svc-name">AI Workflow Retainer</div><div class="svc-fit">Client is ready for ongoing support. Starting at $5,000 per month.</div></div></div>
+      </div>
+    </div>`;
+  document.getElementById('reset-link').style.display = 'block';
+  renderProgress(); renderTimeline();
+}
+
+function resetPipeline() { current = 0; outputs = {}; renderStage(); window.scrollTo({top:0,behavior:'smooth'}); }
+renderStage();
+</script>
+</body>
+</html>
