@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIRJ Creative — Site Tracker</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600&display=swap');
+:root {
+--coral: #F48575; --blue: #2846ab; --purple: #8354c5;
+--muted: #8487ae; --dark: #1a1a2e; --bg: #0f0f1a;
+--card: #1a1a2e; --card-hover: #20203a;
+--border: rgba(255,255,255,0.07); --border-hover: rgba(255,255,255,0.14);
+--text: #f0eef8; --text-sub: #8487ae; --text-dim: rgba(132,135,174,0.6);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+.protected { display: none; }
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 220px; background: var(--card); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; }
+.sidebar-top { padding: 24px 20px 20px; border-bottom: 1px solid var(--border); }
+.sidebar-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+.logo-m { width: 32px; height: 32px; background: var(--coral); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 600; color: white; flex-shrink: 0; }
+.sidebar-brand { font-family: 'Playfair Display', serif; font-size: 14px; color: var(--text); font-weight: 500; }
+.sidebar-env { font-size: 10px; color: var(--purple); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 6px; padding: 3px 8px; background: rgba(131,84,197,0.15); border-radius: 4px; display: inline-block; }
+.sidebar-nav { padding: 16px 12px; flex: 1; }
+.nav-label { font-size: 10px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; padding: 0 8px; margin-bottom: 6px; margin-top: 16px; display: block; }
+.nav-label:first-child { margin-top: 0; }
+.nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; font-size: 13px; color: var(--text-sub); cursor: pointer; transition: background 0.15s, color 0.15s; text-decoration: none; margin-bottom: 2px; }
+.nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+.nav-item.active { background: rgba(131,84,197,0.15); color: var(--purple); }
+.nav-item.dim { opacity: 0.4; cursor: default; pointer-events: none; }
+.nav-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.soon-tag { font-size: 9px; background: rgba(255,255,255,0.06); color: var(--text-dim); padding: 1px 6px; border-radius: 3px; margin-left: auto; }
+.sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); }
+.logout-btn { font-size: 12px; color: var(--text-dim); cursor: pointer; background: none; border: none; font-family: inherit; padding: 0; text-decoration: underline; text-underline-offset: 3px; }
+.logout-btn:hover { color: var(--text-sub); }
+.main { margin-left: 220px; flex: 1; padding: 40px 36px; max-width: 1200px; }
+.page-eyebrow { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+.page-title-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 8px; }
+.page-title { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 500; color: var(--text); }
+.refresh-btn { font-size: 12.5px; font-weight: 600; color: var(--purple); background: rgba(131,84,197,0.12); border: 1px solid rgba(131,84,197,0.3); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+.refresh-btn:hover { background: rgba(131,84,197,0.22); }
+.refresh-btn:disabled { opacity: 0.5; cursor: default; }
+.page-sub { font-size: 14px; color: var(--text-sub); line-height: 1.6; margin-bottom: 28px; }
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 32px; }
+.stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; }
+.stat-num { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.stat-label { font-size: 11px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.06em; }
+.table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+thead th { text-align: left; font-size: 10.5px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.07em; padding: 12px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+tbody td { padding: 11px 14px; border-bottom: 1px solid var(--border); color: var(--text-sub); white-space: nowrap; max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: rgba(255,255,255,0.02); color: var(--text); }
+.empty-state { padding: 48px 20px; text-align: center; color: var(--text-dim); font-size: 13px; }
+.loading-state { padding: 48px 20px; text-align: center; color: var(--text-sub); font-size: 13px; }
+.error-state { padding: 20px; text-align: center; color: var(--coral); font-size: 13px; }
+.bottom-stripe { height: 3px; background: linear-gradient(90deg, var(--purple), var(--blue), var(--coral)); position: fixed; bottom: 0; left: 0; right: 0; }
+@media (max-width: 700px) { .sidebar { display: none; } .main { margin-left: 0; padding: 24px 18px; } .table-wrap { overflow-x: auto; } }
+</style>
+</head>
+<body>
+<div class="protected" id="app">
+<div class="layout">
+<aside class="sidebar">
+<div class="sidebar-top">
+<div class="sidebar-logo">
+<div class="logo-m">M</div>
+<div class="sidebar-brand">MIRJ Creative</div>
+</div>
+<div class="sidebar-env">Internal</div>
+</div>
+<nav class="sidebar-nav">
+<span class="nav-label">Workspace</span>
+<a class="nav-item" href="dashboard.html">
+<div class="nav-dot" style="background:var(--purple)"></div>Dashboard
+</a>
+<span class="nav-label">Audit Tools</span>
+<a class="nav-item" href="ops-audit.html">
+<div class="nav-dot" style="background:var(--coral)"></div>Operations Audit
+</a>
+<a class="nav-item" href="ai-audit.html">
+<div class="nav-dot" style="background:var(--blue)"></div>AI Workflow Audit
+</a>
+<span class="nav-label">Analytics</span>
+<a class="nav-item active" href="site-tracker.html">
+<div class="nav-dot" style="background:var(--coral)"></div>Site Tracker
+</a>
+<span class="nav-label">Resources</span>
+<div class="nav-item dim">
+<div class="nav-dot" style="background:var(--muted)"></div>SOPs and Templates<span class="soon-tag">Soon</span>
+</div>
+<div class="nav-item dim">
+<div class="nav-dot" style="background:var(--muted)"></div>Client Resources<span class="soon-tag">Soon</span>
+</div>
+<div class="nav-item dim">
+<div class="nav-dot" style="background:var(--muted)"></div>Proposals<span class="soon-tag">Soon</span>
+</div>
+</nav>
+<div class="sidebar-footer">
+<button class="logout-btn" onclick="logout()">Sign out</button>
+</div>
+</aside>
+<main class="main">
+<div class="page-eyebrow">mirjcreative.com</div>
+<div class="page-title-row">
+<div class="page-title">Site Tracker</div>
+<button class="refresh-btn" id="refresh-btn" onclick="loadData()">&#8635; Refresh</button>
+</div>
+<div class="page-sub">Live visit log pulled from the site's custom tracker &mdash; page views, referrers, approximate location, device, and session duration. Data collection may take a few minutes to appear after a new visit.</div>
+
+<div class="stat-grid">
+<div class="stat-card">
+<div class="stat-num" id="stat-total">&mdash;</div>
+<div class="stat-label">Total Visits Logged</div>
+</div>
+<div class="stat-card">
+<div class="stat-num" id="stat-today">&mdash;</div>
+<div class="stat-label">Visits Today</div>
+</div>
+<div class="stat-card">
+<div class="stat-num" id="stat-pages">&mdash;</div>
+<div class="stat-label">Unique Pages</div>
+</div>
+<div class="stat-card">
+<div class="stat-num" id="stat-avg">&mdash;</div>
+<div class="stat-label">Avg. Duration</div>
+</div>
+</div>
+
+<div class="table-wrap">
+<div id="table-container">
+<div class="loading-state">Loading visit data&hellip;</div>
+</div>
+</div>
+</main>
+</div>
+<div class="bottom-stripe"></div>
+</div>
+
+<script>
+if (sessionStorage.getItem('mirj_auth') !== 'true') { window.location.href = 'index.html'; }
+else { document.getElementById('app').style.display = 'block'; loadData(); }
+function logout() { sessionStorage.removeItem('mirj_auth'); window.location.href = 'index.html'; }
+
+var WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxSeGhFC0dwByV-LYFqQLjCqPeCvDiC8shKbjC0KYcuHMjc6_-vDGjFfqz-VGRe23o1/exec';
+
+function escapeHtml(str) {
+  return String(str == null ? '' : str).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+
+function formatTimestamp(iso) {
+  if (!iso) return '';
+  var d = new Date(iso);
+  if (isNaN(d.getTime())) return String(iso);
+  return d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+}
+
+function loadData() {
+  var btn = document.getElementById('refresh-btn');
+  var container = document.getElementById('table-container');
+  btn.disabled = true;
+  btn.textContent = 'Loading…';
+
+  fetch(WEBHOOK_URL, { method: 'GET' })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      var rows = data.rows || [];
+      renderStats(rows);
+      renderTable(rows);
+    })
+    .catch(function () {
+      container.innerHTML = '<div class="error-state">Could not load visit data. Try refreshing.</div>';
+    })
+    .finally(function () {
+      btn.disabled = false;
+      btn.innerHTML = '&#8635; Refresh';
+    });
+}
+
+function renderStats(rows) {
+  document.getElementById('stat-total').textContent = rows.length;
+
+  var todayStr = new Date().toDateString();
+  var todayCount = rows.filter(function (r) {
+    var t = r['Timestamp'];
+    if (!t) return false;
+    var d = new Date(t);
+    return !isNaN(d.getTime()) && d.toDateString() === todayStr;
+  }).length;
+  document.getElementById('stat-today').textContent = todayCount;
+
+  var uniquePages = {};
+  rows.forEach(function (r) { if (r['Page']) uniquePages[r['Page']] = true; });
+  document.getElementById('stat-pages').textContent = Object.keys(uniquePages).length;
+
+  var durations = rows.map(function (r) { return Number(r['Session Duration (s)']) || 0; }).filter(function (n) { return n > 0; });
+  var avg = durations.length ? Math.round(durations.reduce(function (a, b) { return a + b; }, 0) / durations.length) : 0;
+  document.getElementById('stat-avg').textContent = avg ? (avg + 's') : '—';
+}
+
+function renderTable(rows) {
+  var container = document.getElementById('table-container');
+  if (!rows.length) {
+    container.innerHTML = '<div class="empty-state">No visits logged yet. Once someone visits the site, their session will appear here.</div>';
+    return;
+  }
+  var html = '<table><thead><tr>' +
+    '<th>Time</th><th>Page</th><th>Referrer</th><th>City</th><th>Region</th><th>Country</th><th>Device</th><th>Browser</th><th>Duration</th>' +
+    '</tr></thead><tbody>';
+  rows.forEach(function (r) {
+    html += '<tr>' +
+      '<td>' + escapeHtml(formatTimestamp(r['Timestamp'])) + '</td>' +
+      '<td>' + escapeHtml(r['Page']) + '</td>' +
+      '<td>' + escapeHtml(r['Referrer']) + '</td>' +
+      '<td>' + escapeHtml(r['City']) + '</td>' +
+      '<td>' + escapeHtml(r['Region']) + '</td>' +
+      '<td>' + escapeHtml(r['Country']) + '</td>' +
+      '<td>' + escapeHtml(r['Device']) + '</td>' +
+      '<td>' + escapeHtml(r['Browser']) + '</td>' +
+      '<td>' + (r['Session Duration (s)'] ? escapeHtml(r['Session Duration (s)']) + 's' : '') + '</td>' +
+      '</tr>';
+  });
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+</script>
+</body>
+</html>
