@@ -187,7 +187,7 @@ const STAGES = [
   { num:5, short:'Delivery', label:'Stage 05', title:'Delivery Package Assembly',
     desc:'Paste the final refined audit below. Claude will write a one-page executive summary and a prioritized next steps plan ready for client delivery.',
     placeholder:'Paste the final refined audit here...',
-    hint:'After delivery, use the recommended next steps as the bridge into your AI Workflow Retainer conversation.',
+    hint:'After delivery, use the recommended next steps as the bridge into your Operations & Automation Retainer conversation.',
     prompt: (i) => `You are assembling the final delivery package for a MIRJ Creative AI Workflow Audit. Produce two components:\n\nCOMPONENT 1 — ONE-PAGE EXECUTIVE SUMMARY\nWrite this for a non-technical stakeholder who has not read the full audit. 4 to 5 short paragraphs. Cover: what we found, why it matters, and what happens next. Warm, confident, and specific. No jargon.\n\nCOMPONENT 2 — NEXT STEPS PLAN\nList 5 prioritized action items ranked by impact and ease of implementation. For each one:\n- Name the action in one line\n- State the specific outcome it produces\n- Give a realistic timeline (this week / week 1 / week 2 to 3 / month 1)\n- Estimate the cost (zero / low / medium / requires budget conversation)\n\nEnd with a single sentence the consultant can use to open the delivery call.\n\nFinal audit:\n\${i}` }
 ];
 
@@ -351,7 +351,7 @@ function renderComplete() {
         <div class="service-box-label">What comes next</div>
         <div class="svc-row"><div class="svc-dot" style="background:var(--coral)"></div><div><div class="svc-name">AI Workflow Audit</div><div class="svc-fit">Client's friction is tool and workflow related. Ready to explore AI integration.</div></div></div>
         <div class="svc-row"><div class="svc-dot" style="background:var(--blue)"></div><div><div class="svc-name">Alignment Reset</div><div class="svc-fit">Client knows the problem and needs focused help fast. A 3-session sprint.</div></div></div>
-        <div class="svc-row"><div class="svc-dot" style="background:var(--purple)"></div><div><div class="svc-name">AI Workflow Retainer</div><div class="svc-fit">Ready for ongoing support. Starting at $5,000 per month.</div></div></div>
+        <div class="svc-row"><div class="svc-dot" style="background:var(--purple)"></div><div><div class="svc-name">Operations & Automation Retainer</div><div class="svc-fit">Ready for ongoing support. Starting at $5,000 per month.</div></div></div>
       </div>
     </div>`;
   document.getElementById('reset-link').style.display = 'block';
