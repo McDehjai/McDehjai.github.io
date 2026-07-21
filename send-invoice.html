@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIRJ Creative: Send Invoice</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600&display=swap');
+:root {
+--coral: #F48575; --blue: #2846ab; --purple: #8354c5;
+--muted: #8487ae; --dark: #1a1a2e; --bg: #0f0f1a;
+--card: #1a1a2e; --card-hover: #20203a;
+--border: rgba(255,255,255,0.07); --border-hover: rgba(255,255,255,0.14);
+--text: #f0eef8; --text-sub: #8487ae; --text-dim: rgba(132,135,174,0.6);
+--bg-input: rgba(255,255,255,0.04);
+--ok: #6dc87a;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+.protected { display: none; }
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 220px; background: var(--card); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; }
+.sidebar-top { padding: 24px 20px 20px; border-bottom: 1px solid var(--border); }
+.sidebar-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+.logo-m { width: 32px; height: 32px; background: var(--coral); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 600; color: white; flex-shrink: 0; }
+.sidebar-brand { font-family: 'Playfair Display', serif; font-size: 14px; color: var(--text); font-weight: 500; }
+.sidebar-env { font-size: 10px; color: var(--purple); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 6px; padding: 3px 8px; background: rgba(131,84,197,0.15); border-radius: 4px; display: inline-block; }
+.sidebar-nav { padding: 16px 12px; flex: 1; }
+.nav-label { font-size: 10px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; padding: 0 8px; margin-bottom: 6px; margin-top: 16px; display: block; }
+.nav-label:first-child { margin-top: 0; }
+.nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; font-size: 13px; color: var(--text-sub); cursor: pointer; transition: background 0.15s, color 0.15s; text-decoration: none; margin-bottom: 2px; }
+.nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+.nav-item.active { background: rgba(131,84,197,0.15); color: var(--purple); }
+.nav-item.dim { opacity: 0.4; cursor: default; pointer-events: none; }
+.nav-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.soon-tag { font-size: 9px; background: rgba(255,255,255,0.06); color: var(--text-dim); padding: 1px 6px; border-radius: 3px; margin-left: auto; }
+.sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); }
+.logout-btn { font-size: 12px; color: var(--text-dim); cursor: pointer; background: none; border: none; font-family: inherit; padding: 0; text-decoration: underline; text-underline-offset: 3px; }
+.logout-btn:hover { color: var(--text-sub); }
+.main { margin-left: 220px; flex: 1; padding: 36px 36px 80px; max-width: 640px; }
+.back-link { font-size: 12px; color: var(--text-dim); text-decoration: none; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 16px; transition: color 0.15s; }
+.back-link:hover { color: var(--text-sub); }
+.header-stripe { height: 3px; background: linear-gradient(90deg, var(--purple), #b09ee0); border-radius: 3px; margin-bottom: 20px; }
+.tool-eyebrow { font-size: 11px; font-weight: 600; color: var(--purple); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+.tool-title { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 500; color: var(--text); margin-bottom: 8px; }
+.tool-desc { font-size: 14px; color: var(--text-sub); line-height: 1.65; margin-bottom: 28px; }
+.field-label { display: block; font-size: 11px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+.form-group { margin-bottom: 18px; }
+.form-row { display: flex; gap: 14px; }
+.form-row .form-group { flex: 1; }
+input[type="text"], input[type="email"], input[type="number"], select, textarea {
+  width: 100%; background: var(--bg-input); border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px 14px; font-size: 13.5px; font-family: inherit; color: var(--text); resize: vertical;
+  line-height: 1.6; transition: border-color 0.2s;
+}
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--purple); }
+input::placeholder, textarea::placeholder { color: var(--text-dim); }
+select { appearance: none; cursor: pointer; }
+textarea { min-height: 80px; }
+.amount-wrap { position: relative; }
+.amount-wrap .dollar { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-dim); font-size: 13.5px; }
+.amount-wrap input { padding-left: 26px; }
+.checkbox-row { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+.checkbox-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--purple); cursor: pointer; }
+.checkbox-row label { font-size: 13px; color: var(--text-sub); cursor: pointer; }
+.recurring-fields { display: none; padding: 14px; background: rgba(131,84,197,0.06); border: 1px solid rgba(131,84,197,0.2); border-radius: 10px; margin-bottom: 18px; }
+.recurring-fields.show { display: block; }
+.send-btn {
+  width: 100%; padding: 13px; background: var(--purple); color: white; border: none; border-radius: 10px;
+  font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;
+  transition: opacity 0.15s, transform 0.1s; margin-top: 6px;
+}
+.send-btn:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
+.send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.status-msg { font-size: 13px; margin-top: 14px; padding: 12px 14px; border-radius: 10px; display: none; }
+.status-msg.ok { background: rgba(109,200,122,0.12); color: var(--ok); display: block; }
+.status-msg.error { background: rgba(244,133,117,0.12); color: var(--coral); display: block; }
+.preview-link { font-size: 12px; color: var(--text-dim); margin-top: 4px; word-break: break-all; }
+.preview-link a { color: var(--purple); }
+.divider { height: 1px; background: var(--border); margin: 22px 0; }
+.log-note { font-size: 11.5px; color: var(--text-dim); }
+.retainer-list { margin-top: 8px; }
+.retainer-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: var(--bg-input); border-radius: 8px; margin-bottom: 6px; font-size: 12.5px; }
+.retainer-row .rname { color: var(--text); font-weight: 500; }
+.retainer-row .rmeta { color: var(--text-dim); }
+.retainer-empty { font-size: 12.5px; color: var(--text-dim); padding: 8px 0; }
+.bottom-stripe { height: 3px; background: linear-gradient(90deg, var(--purple), var(--blue), var(--coral)); position: fixed; bottom: 0; left: 0; right: 0; }
+@media (max-width: 700px) { .sidebar { display: none; } .main { margin-left: 0; padding: 24px 18px 80px; } }
+</style>
+</head>
+<body>
+<div class="protected" id="app">
+<div class="layout">
+<aside class="sidebar">
+<div class="sidebar-top">
+<div class="sidebar-logo">
+<div class="logo-m">M</div>
+<div class="sidebar-brand">MIRJ Creative</div>
+</div>
+<div class="sidebar-env">Internal</div>
+</div>
+<nav class="sidebar-nav">
+<span class="nav-label">Workspace</span>
+<a class="nav-item" href="dashboard.html">
+<div class="nav-dot" style="background:var(--purple)"></div>Dashboard
+</a>
+<span class="nav-label">Audit Tools</span>
+<a class="nav-item" href="ops-audit.html">
+<div class="nav-dot" style="background:var(--coral)"></div>Operations Audit
+</a>
+<a class="nav-item" href="ai-audit.html">
+<div class="nav-dot" style="background:var(--blue)"></div>AI Workflow Audit
+</a>
+<span class="nav-label">Analytics</span>
+<a class="nav-item" href="site-tracker.html">
+<div class="nav-dot" style="background:var(--coral)"></div>Site Tracker
+</a>
+<span class="nav-label">Client Tools</span>
+<a class="nav-item" href="send-agreement.html">
+<div class="nav-dot" style="background:var(--purple)"></div>Send Agreement
+</a>
+<a class="nav-item active" href="send-invoice.html">
+<div class="nav-dot" style="background:var(--purple)"></div>Send Invoice
+</a>
+<span class="nav-label">Resources</span>
+<div class="nav-item dim">
+<div class="nav-dot" style="background:var(--muted)"></div>SOPs and Templates<span class="soon-tag">Soon</span>
+</div>
+</nav>
+<div class="sidebar-footer">
+<button class="logout-btn" onclick="logout()">Sign out</button>
+</div>
+</aside>
+
+<main class="main">
+<a class="back-link" href="dashboard.html">← Back to dashboard</a>
+<div class="header-stripe"></div>
+<div class="tool-eyebrow">Client Tools</div>
+<div class="tool-title">Send Invoice</div>
+<div class="tool-desc">Bill a client directly from the dashboard. Stripe creates and emails a real invoice with a pay link. Mark it recurring to bill the same client automatically every month going forward.</div>
+
+<form id="invoice-form">
+  <div class="form-group">
+    <label class="field-label" for="clientName">Client name</label>
+    <input type="text" id="clientName" name="clientName" placeholder="Jane Smith" required>
+  </div>
+  <div class="form-group">
+    <label class="field-label" for="clientEmail">Client email</label>
+    <input type="email" id="clientEmail" name="clientEmail" placeholder="jane@business.com" required>
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label class="field-label" for="amount">Amount (USD)</label>
+      <div class="amount-wrap">
+        <span class="dollar">$</span>
+        <input type="number" id="amount" name="amount" placeholder="750" min="1" step="0.01" required>
+      </div>
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="field-label" for="description">Description (optional)</label>
+    <input type="text" id="description" name="description" placeholder="August Retainer">
+  </div>
+
+  <div class="checkbox-row">
+    <input type="checkbox" id="recurring" name="recurring">
+    <label for="recurring">Make this a recurring monthly retainer</label>
+  </div>
+
+  <div class="recurring-fields" id="recurring-fields">
+    <div class="form-group" style="margin-bottom:0;">
+      <label class="field-label" for="billingDay">Bill on this day of the month</label>
+      <input type="number" id="billingDay" name="billingDay" placeholder="1" min="1" max="28">
+    </div>
+  </div>
+
+  <button type="submit" class="send-btn" id="send-btn">Send invoice</button>
+  <div class="status-msg" id="status-msg"></div>
+</form>
+
+<div class="divider"></div>
+<div class="field-label">Active retainers</div>
+<div class="retainer-list" id="retainer-list">
+  <div class="retainer-empty">Loading…</div>
+</div>
+
+<div class="divider"></div>
+<p class="log-note">Every invoice is logged to the "Invoices Sent" sheet inside the Client Agreements folder in Drive. Recurring clients are billed automatically each month by a daily check on the backend, no need to resend manually.</p>
+</main>
+</div>
+<div class="bottom-stripe"></div>
+</div>
+
+<script>
+if (sessionStorage.getItem('mirj_auth') !== 'true') { window.location.href = 'index.html'; }
+else { document.getElementById('app').style.display = 'block'; }
+function logout() { sessionStorage.removeItem('mirj_auth'); window.location.href = 'index.html'; }
+
+// Same Web App URL as the Send Agreement tool and agreement.html: this script's
+// doPost/doGet dispatch on the "action" field, so one deployment serves all of it.
+var WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbzLqS5zp8azGeFu0SqlT5vtrPm0JLxPxfQP8k46ma_QUia7AAjzBeWaUcKNTQqSRwrS/exec';
+
+document.getElementById('recurring').addEventListener('change', function () {
+  var fields = document.getElementById('recurring-fields');
+  var billingDay = document.getElementById('billingDay');
+  if (this.checked) {
+    fields.classList.add('show');
+    billingDay.required = true;
+  } else {
+    fields.classList.remove('show');
+    billingDay.required = false;
+  }
+});
+
+document.getElementById('invoice-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var btn = document.getElementById('send-btn');
+  var statusEl = document.getElementById('status-msg');
+  statusEl.className = 'status-msg';
+  statusEl.textContent = '';
+
+  var clientName = document.getElementById('clientName').value.trim();
+  var clientEmail = document.getElementById('clientEmail').value.trim();
+  var amount = document.getElementById('amount').value.trim();
+  var description = document.getElementById('description').value.trim();
+  var recurring = document.getElementById('recurring').checked;
+  var billingDay = document.getElementById('billingDay').value.trim();
+
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+
+  fetch(WEBHOOK_URL, {
+    method: 'POST',
+    body: JSON.stringify({
+      action: 'createInvoice',
+      clientName: clientName,
+      clientEmail: clientEmail,
+      amount: amount,
+      description: description,
+      recurring: recurring,
+      billingDay: billingDay
+    })
+  })
+    .then(function (res) { return res.json(); })
+    .then(function (data) {
+      if (data && data.status === 'ok') {
+        statusEl.className = 'status-msg ok';
+        statusEl.innerHTML = 'Invoice sent to ' + clientEmail + '.<div class="preview-link">Invoice link: <a href="' + data.invoiceUrl + '" target="_blank">' + data.invoiceUrl + '</a></div>';
+        document.getElementById('invoice-form').reset();
+        document.getElementById('recurring-fields').classList.remove('show');
+        loadRetainers();
+      } else {
+        statusEl.className = 'status-msg error';
+        statusEl.textContent = 'Something went wrong: ' + ((data && data.message) || 'unknown error') + '. Try again or invoice manually in Stripe.';
+      }
+    })
+    .catch(function (err) {
+      statusEl.className = 'status-msg error';
+      statusEl.textContent = 'Could not reach the backend (' + err.message + '). Try again or invoice manually in Stripe.';
+    })
+    .finally(function () {
+      btn.disabled = false;
+      btn.textContent = 'Send invoice';
+    });
+});
+
+function loadRetainers() {
+  var listEl = document.getElementById('retainer-list');
+  fetch(WEBHOOK_URL + '?action=listRetainers')
+    .then(function (res) { return res.json(); })
+    .then(function (data) {
+      if (!data || data.status !== 'ok' || !data.retainers || !data.retainers.length) {
+        listEl.innerHTML = '<div class="retainer-empty">No active recurring retainers yet.</div>';
+        return;
+      }
+      listEl.innerHTML = data.retainers.map(function (r) {
+        var last = r.lastBilled ? ('Last billed ' + r.lastBilled) : 'Not yet billed';
+        return '<div class="retainer-row"><span class="rname">' + r.clientName + '</span><span class="rmeta">$' + r.amount + '/mo, day ' + r.billingDay + ', ' + last + '</span></div>';
+      }).join('');
+    })
+    .catch(function () {
+      listEl.innerHTML = '<div class="retainer-empty">Could not load retainers.</div>';
+    });
+}
+
+loadRetainers();
+</script>
+</body>
+</html>
