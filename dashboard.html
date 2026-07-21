@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MIRJ Creative — Dashboard</title>
+<title>MIRJ Creative: Dashboard</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600&display=swap');
 :root {
@@ -47,9 +47,11 @@ body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--bg); col
 .tool-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
 .tool-card.coral::before { background: linear-gradient(90deg, var(--coral), #f4a08a); }
 .tool-card.blue::before { background: linear-gradient(90deg, var(--blue), #4a6fd4); }
+.tool-card.purple::before { background: linear-gradient(90deg, var(--purple), #b09ee0); }
 .tool-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; margin-bottom: 14px; }
 .tool-icon.coral { background: rgba(244,133,117,0.15); }
 .tool-icon.blue { background: rgba(40,70,171,0.2); }
+.tool-icon.purple { background: rgba(131,84,197,0.15); }
 .tool-name { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
 .tool-desc { font-size: 12.5px; color: var(--text-sub); line-height: 1.6; margin-bottom: 14px; }
 .tool-meta { display: flex; align-items: center; gap: 8px; }
@@ -92,6 +94,10 @@ body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--bg); col
 <span class="nav-label">Analytics</span>
 <a class="nav-item" href="site-tracker.html">
 <div class="nav-dot" style="background:var(--coral)"></div>Site Tracker
+</a>
+<span class="nav-label">Client Tools</span>
+<a class="nav-item" href="send-agreement.html">
+<div class="nav-dot" style="background:var(--purple)"></div>Send Agreement
 </a>
 <span class="nav-label">Resources</span>
 <div class="nav-item dim">
@@ -147,6 +153,21 @@ body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--bg); col
 <div class="tool-meta">
 <span class="tool-tag live">Live</span>
 <span class="tool-stages">Custom tracker</span>
+</div>
+<div class="tool-arrow">→</div>
+</a>
+</div>
+</div>
+<div class="section">
+<div class="section-label">Client Tools</div>
+<div class="tool-grid">
+<a class="tool-card purple" href="send-agreement.html">
+<div class="tool-icon purple">✉️</div>
+<div class="tool-name">Send Agreement</div>
+<div class="tool-desc">Email a client a direct link to sign their Operations or AI Audit engagement agreement, with an optional personal note.</div>
+<div class="tool-meta">
+<span class="tool-tag live">Live</span>
+<span class="tool-stages">Ops + AI Audit</span>
 </div>
 <div class="tool-arrow">→</div>
 </a>
