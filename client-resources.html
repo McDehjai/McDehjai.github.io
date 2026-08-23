@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIRJ Creative: Client Resources</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600&display=swap');
+:root {
+  --coral: #F48575; --blue: #2846ab; --purple: #8354c5;
+  --muted: #8487ae; --dark: #1a1a2e; --bg: #0f0f1a;
+  --card: #1a1a2e; --card-hover: #20203a;
+  --border: rgba(255,255,255,0.07); --border-hover: rgba(255,255,255,0.14);
+  --text: #f0eef8; --text-sub: #8487ae; --text-dim: rgba(132,135,174,0.6);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+.protected { display: none; }
+.layout { display: flex; min-height: 100vh; }
+
+/* SIDEBAR */
+.sidebar { width: 220px; background: var(--card); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; }
+.sidebar-top { padding: 24px 20px 20px; border-bottom: 1px solid var(--border); }
+.sidebar-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+.logo-m { width: 32px; height: 32px; background: var(--coral); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 600; color: white; flex-shrink: 0; }
+.sidebar-brand { font-family: 'Playfair Display', serif; font-size: 14px; color: var(--text); }
+.sidebar-env { font-size: 10px; color: var(--purple); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 6px; padding: 3px 8px; background: rgba(131,84,197,0.15); border-radius: 4px; display: inline-block; }
+.sidebar-nav { padding: 16px 12px; flex: 1; }
+.nav-label { font-size: 10px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; padding: 0 8px; margin-bottom: 6px; margin-top: 16px; display: block; }
+.nav-label:first-child { margin-top: 0; }
+.nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; font-size: 13px; color: var(--text-sub); cursor: pointer; transition: background 0.15s, color 0.15s; text-decoration: none; margin-bottom: 2px; }
+.nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+.nav-item.active { background: rgba(244,133,117,0.15); color: var(--coral); }
+.nav-item.dim { opacity: 0.4; cursor: default; pointer-events: none; }
+.nav-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.soon-tag { font-size: 9px; background: rgba(255,255,255,0.06); color: var(--text-dim); padding: 1px 6px; border-radius: 3px; margin-left: auto; }
+.sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); }
+.logout-btn { font-size: 12px; color: var(--text-dim); cursor: pointer; background: none; border: none; font-family: inherit; padding: 0; text-decoration: underline; text-underline-offset: 3px; }
+
+/* MAIN */
+.main { margin-left: 220px; flex: 1; padding: 36px 36px 80px; max-width: 900px; }
+.back-link { font-size: 12px; color: var(--text-dim); text-decoration: none; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 16px; transition: color 0.15s; }
+.back-link:hover { color: var(--text-sub); }
+.header-stripe { height: 3px; background: linear-gradient(90deg, var(--coral), #f4a08a); border-radius: 3px; margin-bottom: 20px; }
+.page-eyebrow { font-size: 11px; font-weight: 600; color: var(--coral); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+.page-title { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 500; color: var(--text); margin-bottom: 8px; }
+.page-desc { font-size: 14px; color: var(--text-sub); line-height: 1.65; margin-bottom: 36px; max-width: 640px; }
+
+/* CATEGORY */
+.category { margin-bottom: 36px; }
+.category-label { font-size: 11px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+
+/* RESOURCE CARD */
+.resource-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; margin-bottom: 12px; display: flex; align-items: flex-start; gap: 16px; text-decoration: none; transition: border-color 0.15s, background 0.15s; }
+.resource-card:hover { border-color: var(--border-hover); background: var(--card-hover); }
+.resource-icon { width: 38px; height: 38px; border-radius: 10px; background: rgba(244,133,117,0.15); display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+.resource-body { flex: 1; }
+.resource-name { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 5px; }
+.resource-desc { font-size: 13px; color: var(--text-sub); line-height: 1.6; margin-bottom: 10px; }
+.resource-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.resource-tag { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.04em; text-transform: uppercase; background: rgba(100,200,120,0.12); color: #6dc87a; }
+.resource-url { font-size: 11px; color: var(--text-dim); font-family: monospace; }
+.resource-arrow { color: var(--text-dim); font-size: 16px; flex-shrink: 0; margin-top: 4px; transition: color 0.15s, transform 0.15s; }
+.resource-card:hover .resource-arrow { color: var(--text-sub); transform: translate(2px,-2px); }
+
+/* EMPTY STATE */
+.empty-note { background: rgba(255,255,255,0.03); border: 1px dashed var(--border); border-radius: 10px; padding: 18px 20px; font-size: 13px; color: var(--text-dim); line-height: 1.6; text-align: center; }
+
+.bottom-stripe { height: 3px; background: linear-gradient(90deg, var(--purple), var(--blue), var(--coral)); position: fixed; bottom: 0; left: 0; right: 0; }
+
+@media (max-width: 700px) { .sidebar { display: none; } .main { margin-left: 0; padding: 24px 18px 80px; } }
+</style>
+</head>
+<body>
+<div class="protected" id="app">
+<div class="layout">
+<aside class="sidebar">
+<div class="sidebar-top">
+<div class="sidebar-logo">
+<div class="logo-m">M</div>
+<div class="sidebar-brand">MIRJ Creative</div>
+</div>
+<div class="sidebar-env">Internal</div>
+</div>
+<nav class="sidebar-nav">
+<span class="nav-label">Workspace</span>
+<a class="nav-item" href="dashboard.html"><div class="nav-dot" style="background:var(--purple)"></div>Dashboard</a>
+<span class="nav-label">Audit Tools</span>
+<a class="nav-item" href="ops-audit.html"><div class="nav-dot" style="background:var(--coral)"></div>Operations Audit</a>
+<a class="nav-item" href="ai-audit.html"><div class="nav-dot" style="background:var(--blue)"></div>AI Workflow Audit</a>
+<span class="nav-label">Analytics</span>
+<a class="nav-item" href="site-tracker.html"><div class="nav-dot" style="background:var(--coral)"></div>Site Tracker</a>
+<span class="nav-label">Client Tools</span>
+<a class="nav-item" href="send-agreement.html"><div class="nav-dot" style="background:var(--purple)"></div>Send Agreement</a>
+<a class="nav-item" href="send-invoice.html"><div class="nav-dot" style="background:var(--purple)"></div>Send Invoice</a>
+<span class="nav-label">Resources</span>
+<a class="nav-item" href="sops.html"><div class="nav-dot" style="background:var(--purple)"></div>SOPs and Templates</a>
+<a class="nav-item active" href="client-resources.html"><div class="nav-dot" style="background:var(--coral)"></div>Client Resources</a>
+<div class="nav-item dim"><div class="nav-dot" style="background:var(--muted)"></div>Proposals<span class="soon-tag">Soon</span></div>
+</nav>
+<div class="sidebar-footer"><button class="logout-btn" onclick="logout()">Sign out</button></div>
+</aside>
+
+<main class="main">
+<a class="back-link" href="dashboard.html">← Back to dashboard</a>
+<div class="header-stripe"></div>
+<div class="page-eyebrow">Resources</div>
+<div class="page-title">Client Resources</div>
+<div class="page-desc">Client-facing forms, links, and files your team sends out day to day, kept in one place so a new hire can find them without needing access to the founder's Drive. This page will grow as more gets added, it's a living index, not a one-time list.</div>
+
+<div class="category">
+<div class="category-label">Intake Forms</div>
+
+<a class="resource-card" href="https://mirjcreative.com/operations-intake.html" target="_blank" rel="noopener">
+<div class="resource-icon">📋</div>
+<div class="resource-body">
+<div class="resource-name">Operations Intake Form</div>
+<div class="resource-desc">The detail-tier follow-up intake, sent once a client moves into deeper engagement (SOP discovery, an Operations and Automation Retainer, etc.). Assumes the basics-tier Client Intake Form was already completed at the start of the engagement, so it goes straight into role mapping, daily operations, financials, and documentation status. Submits to the site's Formspree inbox.</div>
+<div class="resource-meta">
+<span class="resource-tag">Live</span>
+<span class="resource-url">mirjcreative.com/operations-intake.html</span>
+</div>
+</div>
+<div class="resource-arrow">↗</div>
+</a>
+
+</div>
+
+<div class="category">
+<div class="category-label">More Coming</div>
+<div class="empty-note">The basics-tier Client Intake Forms, proposal templates, and other frequently-sent client files will get added here over time as they're pulled out of Drive.</div>
+</div>
+
+</main>
+</div>
+<div class="bottom-stripe"></div>
+</div>
+
+<script>
+if (sessionStorage.getItem('mirj_auth') !== 'true') { window.location.href = 'index.html'; }
+else { document.getElementById('app').style.display = 'block'; }
+function logout() { sessionStorage.removeItem('mirj_auth'); window.location.href = 'index.html'; }
+</script>
+</body>
+</html>
